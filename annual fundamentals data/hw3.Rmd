@@ -11,9 +11,11 @@ library(htmlTable)
 
 # Homework 3, by Ao Luo, Jan 31, 2018
 
+## See the Static Website at [HERE](https://cdn.rawgit.com/luoao0417/Financial-Engineering-Projects/39bab55d/annual%20fundamentals%20data/hw3.html)
+
 ## Executive Summary
 
-This homework is focused on the collection of annual data for all stocks. The data sets come from <a href="https://wrds-web.wharton.upenn.edu/wrds/">WRDS</a>. Given the monthly data for PERMNO, tickers, cusip, price, shares outstanding and holding period return, we calculate the annualized marketcap and rate of return. Measurement error due to bid/ask gap, sample selection, and treatment of missing data for stocks with short history may affect the conclusion.
+This homework is focused on the collection of annual data for all stocks. The data sets come from [WRDS](https://wrds-web.wharton.upenn.edu/wrds/). Given the monthly data for PERMNO, tickers, cusip, price, shares outstanding and holding period return, we calculate the annualized marketcap and rate of return. Measurement error due to bid/ask gap, sample selection, and treatment of missing data for stocks with short history may affect the conclusion.
 
 ## Introduction & Discussion
 ### Data Set
