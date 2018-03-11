@@ -11,13 +11,13 @@ This project focuses on the exploration of the relationship between **E/P ratios
 [View It Here](https://cdn.rawgit.com/luoao0417/Financial-Engineering-Projects/ddf9adde/Value%20vs%20Growth/hw6.html)
 
 ## Exotic & Path Dependent Options [Python]
-### Fixed Strike Lookback Option
-### Collateral Loans
+* Fixed Strike Lookback Option
+* Collateral Loans
 
 ## Binomial Methods for Option Pricing [Python]
-### Convergence Rate of Different Binomial Mthods
-### Price Options using Real-time Data
-### Greeks Estimation using Binomial Method
-### Binomial Method for Put Option
-### Trinomial Method
-### Binomial Method using Halton's Low-discrepancy Sequence
+* Convergence Rate of Different Binomial Mthods
+* Price Options using Real-time Data
+* Greeks Estimation using Binomial Method
+* Binomial Method for Put Option
+* Trinomial Method
+* Binomial Method using Halton's Low-discrepancy Sequence
