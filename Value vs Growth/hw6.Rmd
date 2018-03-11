@@ -1,0 +1,138 @@
+```{r setup, include=FALSE}
+library(tidyquant)
+```
+# Homework 6, by Ao Luo, Feb 23, 2018
+## View static website from [HERE]()
+
+## Executive Summary
+This homework is focused on the exploration of the relationship between E/P ratios and earnings growth. The data sets are hot-loaded using `tidyquant` to pull data from online database. Given the P/E ratios, and 3-year average lagged growth of net income, we truncated the top and bottom quantile as outliers. The correlation turns out to be merely 0.1365359, which is weak evidence to establish a linear relationship between these two stats. Measurement error due to sample selection, and treatment of missing data for stocks with short history may affect the conclusion.
+
+## Introduction & Discussion
+### Data Set
+
+The data sets contain the symbols and its financial informations, key ratios for recent three years of our interest. Considering that S&P500 provide more reliable financial report, we limit the study range to it. If necessary, we can download more data for analysis. It takes 20-30 minutes to download the entire NYSE exchanged stocks.
+
+### Data Processing
+First we read the tibble data with `dplyr` method. For earnings growth, we are interested in the 3-year average lag change rate of net income. For E/P ratio, we derived it from the latest P/E ratio. Then we truncate the top and bottom quantiles as outliers for both numbers.
+
+### Methodology
+R Package [tidyquant](https://business-science.github.io/tidyquant/) is used to process the data. The data visualization is accomplished through [ggplot2](https://cran.r-project.org/web/packages/ggplot2)
+
+### Performance Analysis
+For illustration purpose, we plot the 262 data points to see the relationship between E/P ratios and Earnings growth.
+
+The Rdata for the stocks with valid numbers is stored online and you can access it from [HERE](https://drive.google.com/file/d/1XFM-CR2RPij48uT-OnASt4o4CYx6LIX9/view?usp=sharing)
+
+## Tables and Figures
+```{r plot, echo=FALSE}
+load("plotdata.RData")
+truncated_merge %>%
+  ggplot(aes(x = earningspct, y = epratio)) +
+  geom_point(color = 'blue')+
+  labs(title = "SP500 Stocks E/P ratios vs. Earnings Change", 
+       subtitle = "Top and Bottom Quantiles Truncated",
+       x = "3-year Average Lagged Change In Earnings [%]", y = "E/P Ratio")
+```
+
+## Computer Code
+<pre>
+  # load library
+  library(tidyquant)
+  
+  # load stored sp500 symbols
+  load('sp500symbols.RData')
+  # date starting point
+  from <- today() - years(3)
+  get_sp500 <- tq_get(sp500list, get = c("key.ratios", "financials"), from = from)
+  # save for reload
+  save(get_sp500, file = "sp500_info.RData")
+  load('./sp500_info.RData')
+  
+  # get 3-year average lagged change in earnings
+  earnings.changes <- get_sp500 %>%
+    rowwise() %>%
+    unnest(key.ratios) %>%
+    filter(section == 'Growth') %>%
+    unnest(data) %>%
+    filter(sub.section == 'Net Income %', category == '3-Year Average') %>%
+    group_by(symbol) %>%
+    filter(row_number() == n(), !is.na(value)) %>%
+    mutate(earningspct = value) %>%
+    select(symbol, earningspct)
+  
+  # truncate the top and bottom quantiles
+  qbottom.earnings.changes <- quantile(earnings.changes$earningspct,0.1)
+  qtop.earnings.changes <- quantile(earnings.changes$earningspct, 0.9)
+  truncated.earnings.changes <- earnings.changes %>%
+    filter(earningspct > qbottom.earnings.changes, earningspct < qtop.earnings.changes)
+  
+  # get P/E ratios and convert to E/P ratio
+  earnings.price.ratios <- get_sp500 %>%
+    rowwise() %>%
+    unnest(key.ratios) %>%
+    filter(section == 'Valuation Ratios') %>%
+    unnest(data) %>%
+    filter(category == 'Price to Earnings') %>%
+    group_by(symbol) %>%
+    filter(row_number() == n(), !is.na(value)) %>%
+    mutate(epratio = 1 / value) %>%
+    select(symbol, epratio)
+  
+  # truncate top and bottom quantiles
+  qbottom.earnings.price.ratios <- quantile(earnings.price.ratios$epratio,0.1)
+  qtop.earnings.price.ratios <- quantile(earnings.price.ratios$epratio, 0.9)
+  truncated.earnings.price.ratios <- earnings.price.ratios %>%
+    filter(epratio > qbottom.earnings.price.ratios, epratio < qtop.earnings.price.ratios)
+  
+  truncated_merge <- left_join(truncated.earnings.changes, truncated.earnings.price.ratios, by =    
+  'symbol') %>%
+    filter(!is.na(earningspct), !is.na(epratio))
+  
+  save(truncated_merge, file = 'plotdata.RData')
+  
+  # stored sp500 list
+  # sp500list <- c(
+  # 'AAPL', 'ABT', 'ABBV', 'ACN', 'ACE', 'ADBE', 'ADT', 'AAP', 'AES', 'AET', 'AFL',
+  # 'AMG', 'A', 'GAS', 'ARE', 'APD', 'AKAM', 'AA', 'AGN', 'ALXN', 'ALLE', 'ADS', 'ALL',
+  # 'ALTR', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP', 'AXP', 'AIG', 'AMT', 'AMP', 'ABC', 'AME',
+  # 'AMGN', 'APH', 'APC', 'ADI', 'AON', 'APA', 'AIV', 'AMAT', 'ADM', 'AIZ', 'T', 'ADSK', 
+  # 'ADP', 'AN', 'AZO', 'AVGO', 'AVB', 'AVY', 'BHI', 'BLL', 'BAC', 'BK', 'BCR', 'BXLT', 
+  # 'BAX', 'BBT', 'BDX', 'BBBY', 'BRK.B', 'BBY', 'BLX', 'HRB', 'BA', 'BWA', 'BXP', 'BSX',
+  # 'BMY', 'BRCM', 'BF.B', 'CHRW', 'CA', 'CVC', 'COG', 'CAM', 'CPB', 'COF', 'CAH', 'HSIC', 
+  # 'KMX', 'CCL', 'CAT', 'CBG', 'CBS', 'CELG', 'CNP', 'CTL', 'CERN', 'CF', 'SCHW', 'CHK', 'CVX', 
+  # 'CMG', 'CB', 'CI', 'XEC', 'CINF', 'CTAS', 'CSCO', 'C', 'CTXS', 'CLX', 'CME', 'CMS', 
+  # 'COH', 'KO', 'CCE', 'CTSH', 'CL', 'CMCSA', 'CMA', 'CSC', 'CAG', 'COP', 'CNX', 'ED',
+  # 'STZ', 'GLW', 'COST', 'CCI', 'CSX', 'CMI', 'CVS', 'DHI', 'DHR', 'DRI', 'DVA', 'DE', 
+  # 'DLPH', 'DAL', 'XRAY', 'DVN', 'DO', 'DTV', 'DFS', 'DISCA', 'DISCK', 'DG', 'DLTR', 
+  # 'D', 'DOV', 'DOW', 'DPS', 'DTE', 'DD', 'DUK', 'DNB', 'ETFC', 'EMN', 'ETN', 'EBAY',
+  # 'ECL', 'EIX', 'EW', 'EA', 'EMC', 'EMR', 'ENDP', 'ESV', 'ETR', 'EOG', 'EQT', 'EFX',
+  # 'EQIX', 'EQR', 'ESS', 'EL', 'ES', 'EXC', 'EXPE', 'EXPD', 'ESRX', 'XOM', 'FFIV', 
+  # 'FB', 'FAST', 'FDX', 'FIS', 'FITB', 'FSLR', 'FE', 'FISV', 'FLIR', 'FLS', 'FLR', 
+  # 'FMC', 'FTI', 'F', 'FOSL', 'BEN', 'FCX', 'FTR', 'GME', 'GPS', 'GRMN', 'GD', 'GE', 
+  # 'GGP', 'GIS', 'GM', 'GPC', 'GNW', 'GILD', 'GS', 'GT', 'GOOGL', 'GOOG', 'GWW', 
+  # 'HAL', 'HBI', 'HOG', 'HAR', 'HRS', 'HIG', 'HAS', 'HCA', 'HCP', 'HCN', 'HP', 
+  # 'HES', 'HPQ', 'HD', 'HON', 'HRL', 'HSP', 'HST', 'HCBK', 'HUM', 'HBAN', 'ITW', 
+  # 'IR', 'INTC', 'ICE', 'IBM', 'IP', 'IPG', 'IFF', 'INTU', 'ISRG', 'IVZ', 'IRM', 
+  # 'JEC', 'JBHT', 'JNJ', 'JCI', 'JOY', 'JPM', 'JNPR', 'KSU', 'K', 'KEY', 'GMCR', 
+  # 'KMB', 'KIM', 'KMI', 'KLAC', 'KSS', 'KRFT', 'KR', 'LB', 'LLL', 'LH', 'LRCX',
+  # 'LM', 'LEG', 'LEN', 'LVLT', 'LUK', 'LLY', 'LNC', 'LLTC', 'LMT', 'L', 'LOW', 'LYB',
+  # 'MTB', 'MAC', 'M', 'MNK', 'MRO', 'MPC', 'MAR', 'MMC', 'MLM', 'MAS', 'MA', 'MAT', 'MKC',
+  # 'MCD', 'MCK', 'MJN', 'MMV', 'MDT', 'MRK', 'MET', 'KORS', 'MCHP', 'MU', 'MSFT', 'MHK', 
+  # 'TAP', 'MDLZ', 'MON', 'MNST', 'MCO', 'MS', 'MOS', 'MSI', 'MUR', 'MYL', 'NDAQ', 'NOV', 
+  # 'NAVI', 'NTAP', 'NFLX', 'NWL', 'NFX', 'NEM', 'NWSA', 'NEE', 'NLSN', 'NKE', 'NI', 'NE', 
+  # 'NBL', 'JWN', 'NSC', 'NTRS', 'NOC', 'NRG', 'NUE', 'NVDA', 'ORLY', 'OXY', 'OMC', 'OKE', 
+  # 'ORCL', 'OI', 'PCAR', 'PLL', 'PH', 'PDCO', 'PAYX', 'PNR', 'PBCT', 'POM', 'PEP', 'PKI', 
+  # 'PRGO', 'PFE', 'PCG', 'PM', 'PSX', 'PNW', 'PXD', 'PBI', 'PCL', 'PNC', 'RL', 'PPG', 'PPL',
+  # 'PX', 'PCP', 'PCLN', 'PFG', 'PG', 'PGR', 'PLD', 'PRU', 'PEG', 'PSA', 'PHM', 'PVH', 'QRVO', 
+  # 'PWR', 'QCOM', 'DGX', 'RRC', 'RTN', 'O', 'RHT', 'REGN', 'RF', 'RSG', 'RAI', 'RHI', 'ROK', 
+  # 'COL', 'ROP', 'ROST', 'RLD', 'R', 'CRM', 'SNDK', 'SCG', 'SLB', 'SNI', 'STX', 'SEE',
+  # 'SRE', 'SHW', 'SPG', 'SWKS', 'SLG', 'SJM', 'SNA', 'SO', 'LUV', 'SWN', 'SE', 'STJ', 
+  # 'SWK', 'SPLS', 'SBUX', 'HOT', 'STT', 'SRCL', 'SYK', 'STI', 'SYMC', 'SYY', 'TROW', 
+  # 'TGT', 'TEL', 'TE', 'TGNA', 'THC', 'TDC', 'TSO', 'TXN', 'TXT', 'HSY', 'TRV', 'TMO', 
+  # 'TIF', 'TWX', 'TWC', 'TJX', 'TMK', 'TSS', 'TSCO', 'RIG', 'TRIP', 'FOXA', 'TSN', 
+  # 'TYC', 'UA', 'UNP', 'UNH', 'UPS', 'URI', 'UTX', 'UHS', 'UNM', 'URBN', 'VFC', 'VLO',
+  # 'VAR', 'VTR', 'VRSN', 'VZ', 'VRTX', 'VIAB', 'V', 'VNO', 'VMC', 'WMT', 'WBA', 'DIS', 
+  # 'WM', 'WAT', 'ANTM', 'WFC', 'WDC', 'WU', 'WY', 'WHR', 'WFM', 'WMB', 'WEC', 'WYN', 
+  # 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', 'XYL', 'YHOO', 'YUM', 'ZBH', 'ZION', 'ZTS')
+  # save(sp500list, file = './sp500symbols.RData')
+</pre>
