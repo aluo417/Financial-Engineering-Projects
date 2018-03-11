@@ -1,14 +1,3 @@
----
-title: null
-author: null
-date: null
-output: 
-    html_document:
-        theme: null
-        highlight: null
-        css: hw.css
----
-
 ```{r setup, include=FALSE}
 library(xts)
 library(zoo)
@@ -20,41 +9,31 @@ library(ggplot2)
 library(htmlTable)
 ```
 
-<h1>Homework 3, by Ao Luo, Jan 31, 2018</h1>
+# Homework 3, by Ao Luo, Jan 31, 2018
 
-<h2>Executive Summary</h2>
-<p>
+## Executive Summary
+
 This homework is focused on the collection of annual data for all stocks. The data sets come from <a href="https://wrds-web.wharton.upenn.edu/wrds/">WRDS</a>. Given the monthly data for PERMNO, tickers, cusip, price, shares outstanding and holding period return, we calculate the annualized marketcap and rate of return. Measurement error due to bid/ask gap, sample selection, and treatment of missing data for stocks with short history may affect the conclusion.
-</p>
-<h2>Introduction & Discussion</h2>
-<h3>Data Set</h3>
 
-<p>
+## Introduction & Discussion
+### Data Set
 The WRDS monthly data for all stocks contains the holding period return including dividend, PERMNO code and cusip for each ticker, the price and shares outstanding from 1973 through 2016.
-</p>
-<h3>Data Processing</h3>
-<p>
+
+### Data Processing
 First we transform the price data. The negative price that comes from the average of bid/ask needs to be transformed to absolute values. Then the marketcap is calculated by multiplying the price with number of outstanding shares. Finally the year number is extracted from the date.
-</p>
-<p>
+
 Since the ticker may change with time, the one we choose for annual data will be the latest ticker the company uses in the respective year. As permno and cusip are fixed for all the stocks, we group them by year, perm and cusip into new dataset.
-</p>
-<h3>Methodology</h3>
-<p>
-R Package <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html">"data.table"</a> is used to process the data. The data visualization is accomplished through <a href="https://cran.r-project.org/web/packages/ggplot2/">ggplot2</a> and <a href="https://cran.r-project.org/web/packages/htmlTable/index.html">htmlTable</a>.
-</p>
 
-<h3>Performance Analysis</h3>
-<p>
+### Methodology
+R Package [data.table](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html) is used to process the data. The data visualization is accomplished through [ggplot2](https://cran.r-project.org/web/packages/ggplot2/) and [htmlTable](https://cran.r-project.org/web/packages/htmlTable/index.html)
+
+### Performance Analysis
 For illustration purpose, we draw the first 4 stocks out from the stock universe that has more than 20-year history. We need to notice that the annual rate of return only represent the data we have in the respective year. For beginning year and ending year, the annual rate of return may not be accurate. 
-</p>
 
-<p>
-And the showcase of the annual data can be seen in the figures below. The table for the above 4 stocks are also attached to illustrate the data structure. The Rdata for all stocks is stored online and you can access it from <a href="https://drive.google.com/file/d/1sqJvBbfiE3lO4jToGVoB5OrVT-xRmsBE/view?usp=sharing">HERE</a>.
-</p>
+And the showcase of the annual data can be seen in the figures below. The table for the above 4 stocks are also attached to illustrate the data structure. The Rdata for all stocks is stored online and you can access it from [HERE](https://drive.google.com/file/d/1sqJvBbfiE3lO4jToGVoB5OrVT-xRmsBE/view?usp=sharing).
 
-<h2>Tables and Figures</h2>
-<h3>Tables for Selected 4 Stocks</h3>
+## Tables and Figures
+### Tables for Selected 4 Stocks
 ```{r table, echo=FALSE}
 load("annualData.RData")
 perm1 <- 10001
@@ -71,7 +50,7 @@ htmlTable(sample2, caption="PERMNO 10002", css.total = "")
 htmlTable(sample3, caption="PERMNO 10025", css.total = "")
 htmlTable(sample4, caption="PERMNO 10026", css.total = "")
 ```
-<h3>Plot of Marketcap and Rate of Return for Selected 4 Stocks</h3>
+### Plot of Marketcap and Rate of Return for Selected 4 Stocks
 ```{r figure, echo=FALSE, warning=FALSE}
 multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
   library(grid)
@@ -141,7 +120,7 @@ multiplot(p1, p2, p3, p4, cols=2)
 ```
 
 
-<h2>Computer Code</h2>
+## Computer Code
 <pre>
   # loading libraries
   library(xts)
