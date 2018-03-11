@@ -2,7 +2,7 @@
 library(tidyquant)
 ```
 # Homework 6, by Ao Luo, Feb 23, 2018
-## View static website from [HERE]()
+## View static website from [HERE](https://cdn.rawgit.com/luoao0417/Financial-Engineering-Projects/ddf9adde/Value%20vs%20Growth/hw6.html)
 
 ## Executive Summary
 This homework is focused on the exploration of the relationship between E/P ratios and earnings growth. The data sets are hot-loaded using `tidyquant` to pull data from online database. Given the P/E ratios, and 3-year average lagged growth of net income, we truncated the top and bottom quantile as outliers. The correlation turns out to be merely 0.1365359, which is weak evidence to establish a linear relationship between these two stats. Measurement error due to sample selection, and treatment of missing data for stocks with short history may affect the conclusion.
