@@ -1,0 +1,173 @@
+---
+title: null
+author: null
+date: null
+output: 
+    html_document:
+        theme: null
+        highlight: null
+        css: hw.css
+---
+
+```{r setup, include=FALSE}
+library(xts)
+library(zoo)
+library(magrittr)
+library(data.table)
+library(tidyr)
+library(lubridate)
+library(ggplot2)
+library(htmlTable)
+```
+
+<h1>Homework 3, by Ao Luo, Jan 31, 2018</h1>
+
+<h2>Executive Summary</h2>
+<p>
+This homework is focused on the collection of annual data for all stocks. The data sets come from <a href="https://wrds-web.wharton.upenn.edu/wrds/">WRDS</a>. Given the monthly data for PERMNO, tickers, cusip, price, shares outstanding and holding period return, we calculate the annualized marketcap and rate of return. Measurement error due to bid/ask gap, sample selection, and treatment of missing data for stocks with short history may affect the conclusion.
+</p>
+<h2>Introduction & Discussion</h2>
+<h3>Data Set</h3>
+
+<p>
+The WRDS monthly data for all stocks contains the holding period return including dividend, PERMNO code and cusip for each ticker, the price and shares outstanding from 1973 through 2016.
+</p>
+<h3>Data Processing</h3>
+<p>
+First we transform the price data. The negative price that comes from the average of bid/ask needs to be transformed to absolute values. Then the marketcap is calculated by multiplying the price with number of outstanding shares. Finally the year number is extracted from the date.
+</p>
+<p>
+Since the ticker may change with time, the one we choose for annual data will be the latest ticker the company uses in the respective year. As permno and cusip are fixed for all the stocks, we group them by year, perm and cusip into new dataset.
+</p>
+<h3>Methodology</h3>
+<p>
+R Package <a href="https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html">"data.table"</a> is used to process the data. The data visualization is accomplished through <a href="https://cran.r-project.org/web/packages/ggplot2/">ggplot2</a> and <a href="https://cran.r-project.org/web/packages/htmlTable/index.html">htmlTable</a>.
+</p>
+
+<h3>Performance Analysis</h3>
+<p>
+For illustration purpose, we draw the first 4 stocks out from the stock universe that has more than 20-year history. We need to notice that the annual rate of return only represent the data we have in the respective year. For beginning year and ending year, the annual rate of return may not be accurate. 
+</p>
+
+<p>
+And the showcase of the annual data can be seen in the figures below. The table for the above 4 stocks are also attached to illustrate the data structure. The Rdata for all stocks is stored online and you can access it from <a href="https://drive.google.com/file/d/1sqJvBbfiE3lO4jToGVoB5OrVT-xRmsBE/view?usp=sharing">HERE</a>.
+</p>
+
+<h2>Tables and Figures</h2>
+<h3>Tables for Selected 4 Stocks</h3>
+```{r table, echo=FALSE}
+load("annualData.RData")
+perm1 <- 10001
+sample1 <- mdata[perm == perm1]
+perm2 <- 10002
+sample2 <- mdata[perm == perm2]
+perm3 <- 10025
+sample3 <- mdata[perm == perm3]
+perm4 <- 10026
+sample4 <- mdata[perm == perm4]
+
+htmlTable(sample1, caption="PERMNO 10001", css.total = "")
+htmlTable(sample2, caption="PERMNO 10002", css.total = "")
+htmlTable(sample3, caption="PERMNO 10025", css.total = "")
+htmlTable(sample4, caption="PERMNO 10026", css.total = "")
+```
+<h3>Plot of Marketcap and Rate of Return for Selected 4 Stocks</h3>
+```{r figure, echo=FALSE, warning=FALSE}
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  library(grid)
+
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+
+  numPlots = length(plots)
+
+  # If layout is NULL, then use 'cols' to determine layout
+  if (is.null(layout)) {
+    # Make the panel
+    # ncol: Number of columns of plots
+    # nrow: Number of rows needed, calculated from # of cols
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                    ncol = cols, nrow = ceiling(numPlots/cols))
+  }
+
+ if (numPlots==1) {
+    print(plots[[1]])
+
+  } else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+}
+
+p1 <- ggplot(sample1)+
+  geom_bar(aes(x = year, y = marketcap/10^3), stat = "identity", size = 1.5,fill = "blue", alpha = 0.7)+
+  geom_line(aes(x = year, y = `rate of return`*100), size = 0.5, colour = "red", alpha = 0.7)+
+  scale_y_continuous(sec.axis = sec_axis(~., name = "Rate of return [%]"))+
+  ggtitle("PERMNO 10001")+
+  labs(y = "Marketcap [Millions]",x = "Year",colour = "Parameter")
+
+p2 <- ggplot(sample2)+
+  geom_bar(aes(x = year, y = marketcap/10^3), stat = "identity", size = 1.5,fill = "blue", alpha = 0.7)+
+  geom_line(aes(x = year, y = `rate of return`*100*2), size = 0.5, colour = "red", alpha = 0.7)+
+  scale_y_continuous(sec.axis = sec_axis(~./2, name = "Rate of return [%]"))+
+  ggtitle("PERMNO 10002")+
+  labs(y = "Marketcap [Millions]",x = "Year",colour = "Parameter")
+
+p3 <- ggplot(sample3)+
+  geom_bar(aes(x = year, y = marketcap/10^3), stat = "identity", size = 1.5,fill = "blue", alpha = 0.7)+
+  geom_line(aes(x = year, y = `rate of return`*100*5), size = 0.5, colour = "red", alpha = 0.7)+
+  scale_y_continuous(sec.axis = sec_axis(~./5, name = "Rate of return [%]"))+
+  ggtitle("PERMNO 10025")+
+  labs(y = "Marketcap [Millions]",x = "Year",colour = "Parameter")
+
+p4 <- ggplot(sample4)+
+  geom_bar(aes(x = year, y = marketcap/10^3), stat = "identity", size = 1.5,fill = "blue", alpha = 0.7)+
+  geom_line(aes(x = year, y = `rate of return`*100*20), size = 0.5, colour = "red", alpha = 0.7)+
+  scale_y_continuous(sec.axis = sec_axis(~./20, name = "Rate of return [%]"))+
+  ggtitle("PERMNO 10026")+
+  labs(y = "Marketcap [Millions]",x = "Year",colour = "Parameter")
+
+multiplot(p1, p2, p3, p4, cols=2)
+```
+
+
+<h2>Computer Code</h2>
+<pre>
+  # loading libraries
+  library(xts)
+  library(zoo)
+  library(magrittr)
+  library(data.table)
+  library(tidyr)
+  library(lubridate)
+  
+  # load raw data
+  dset_data <- fread("./data/monthlydata.csv")
+  colnames(dset_data) %<>% tolower
+  
+  # read from raw data
+  test <- dset_data
+  test[, date := as.Date(as.character(date), format = "%Y%m%d") ]
+  test[, adjprc := abs(prc)]
+  test[, mkc := adjprc * shrout]
+  test[, ret := as.numeric(ret)]
+  test[, test[,is.na(ret)]] = 0
+  test[, year := year(date)]
+  # calculate the year-end marketcap, ticker, and annualized rate of return
+  mdata <- test[, 
+       .(prod(na.omit(ret) + 1)-1, tail(na.omit(mkc), n=1), tail(unique(ticker), n=1)),
+       by = .(year, permno, cusip)]
+  colnames(mdata) <- c('year', 'perm', 'cusip', 'rate of return', 'marketcap', 'ticker')
+  
+  save(mdata, file="./annualData.RData")
+</pre>

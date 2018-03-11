@@ -1,0 +1,64 @@
+/* we start with iaw.css */
+
+
+h1 { font-size:17pt; text-align:center; color:black; }
+h2 { font-size:14pt; text-align:left; color:black; }
+h3 { font-size:11pt; text-align:left; color:black; }
+
+a { text-decoration:none; color:#3284bf; }
+a:hover { text-decoration:underline; }
+/* { background-color:#3284bf; color:white; } */
+
+hr.fat { background-color:black; height:4px; }
+
+hr { background-color:black; height:1px; }
+
+li { margin-top: 1em; }
+
+p.notice { background-color:white; font-size:10pt; border:solid black 5px; }
+
+caption { color:brown; text-decoration:underline; font-size:9pt; }
+td { padding-left:1em; padding-right:1em; }
+th { text-decoration:underline }
+table { margin-left:2em; }
+
+p.boxright { width:355px; margin-right:0px; background-color:white; font-size:10pt; float:right; padding:20px; font-size:large; vertical-align:top; }
+
+dt.big { line-height:3; font-size:large; font-weight:bolder; font-family:sans-serif;margin-top:12pt }
+dt.hili { font-size:large; font-family:Cursive; display:inline; text-decoration:underline; padding-top:1em; }
+dt.smallbold { font-size:small; font-family:Cursive; display:inline; font-weight:bold; }
+dd { margin-bottom:1ex }
+
+td.hili { font-size:x-large; font-family:cursive; margin:20px; vertical-align:top }
+
+div.smallnobox { width:400pt; font-size:smaller; margin:10px; }
+div.smallbox { width:400pt; font-size:smaller; margin:10px; border:solid black 1px; }
+
+.boxquote {float: left; text-align: center; border: solid black 1px;font-family: Times, sans-serif; font-size: 12pt; margin: 10px;}
+
+td.googler { vertical-align:bottom; color:green; font-size:x-large}
+
+.small { font-size:smaller; }
+.right { text-align:right; }
+
+body { font-family: 'Oxygen', Verdana, serif; margin:2em; background-color: #F0F0F0; }
+
+div.explain { font-size:smaller; margin-left:40px; margin-right:40px; margin-bottom:10px; }
+
+
+summary::-webkit-details-marker {
+    color: #00ACF3;
+    font-size: 125%;
+    margin-right: 2px;
+}
+
+summary:focus {	outline-style: none; }
+article { margin-left:1em; }
+article > details > summary { font-size: 28px; margin-top: 32px; }
+article > details > summary.link { font-size: 28px; margin-top: 32px; text-decoration:underine; }
+details > p { margin-left: 36px; background-color:#f0f0f0; }
+details > div { margin-left: 36px; background-color:#f0f0f0; }
+
+details details { margin-left: 48px; }
+details details summary { font-size: 16px; }
+
